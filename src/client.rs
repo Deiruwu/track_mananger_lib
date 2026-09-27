@@ -43,8 +43,34 @@ impl MicroserviceClient {
         self.send(req).await
     }
 
+    /// Como `search`, pero heterogéneo: cada item lleva `"kind"` (track | album | artist).
+    /// `filter`: songs | videos | albums | artists | all.
+    pub async fn search_items<T: DeserializeOwned>(&self, query: &str, limit: Option<usize>, filter: &str) -> Result<Vec<T>, MicroserviceError> {
+        self.send(
+            Request::new("search_items")
+                .query(query)
+                .limit(limit.unwrap_or(DEFAULT_LIMIT_SEARCH))
+                .filter(filter),
+        ).await
+    }
+
     pub async fn download<T: DeserializeOwned>(&self, query: &str) -> Result<T, MicroserviceError> {
         self.send(Request::new("download").query(query)).await
+    }
+
+    /// Vuelve a bajar el audio aunque ya esté descargado.
+    pub async fn redownload<T: DeserializeOwned>(&self, query: &str) -> Result<T, MicroserviceError> {
+        self.send(Request::new("redownload").query(query)).await
+    }
+
+    /// Reescribe título/artistas/álbum/portadas del track desde YT Music.
+    pub async fn refresh_metadata<T: DeserializeOwned>(&self, track_id: &str) -> Result<T, MicroserviceError> {
+        self.send(Request::new("refresh_metadata").query(track_id)).await
+    }
+
+    /// Recalcula BPM/key de un track ya descargado.
+    pub async fn reanalyze<T: DeserializeOwned>(&self, track_id: &str) -> Result<T, MicroserviceError> {
+        self.send(Request::new("reanalyze").query(track_id)).await
     }
 
     pub async fn delete_track(&self, track_id: &str) -> Result<(), MicroserviceError> {
