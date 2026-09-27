@@ -68,6 +68,11 @@ impl MicroserviceClient {
         self.send(Request::new("refresh_metadata").query(track_id)).await
     }
 
+    /// Vuelve a buscar la letra (.lrc) de un track ya descargado.
+    pub async fn refresh_lyrics<T: DeserializeOwned>(&self, track_id: &str) -> Result<T, MicroserviceError> {
+        self.send(Request::new("refresh_lyrics").query(track_id)).await
+    }
+
     /// Recalcula BPM/key de un track ya descargado.
     pub async fn reanalyze<T: DeserializeOwned>(&self, track_id: &str) -> Result<T, MicroserviceError> {
         self.send(Request::new("reanalyze").query(track_id)).await
